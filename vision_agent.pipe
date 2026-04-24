@@ -1,0 +1,114 @@
+{
+  "project_id": "9a3e5f60-1c2b-4a8e-9b3d-1a2b3c4d5e6f",
+  "version": 1,
+  "source": "Vision_Node",
+  "components": [
+    {
+      "id": "Vision_Node",
+      "provider": "webhook",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "webhook"
+      },
+      "ui": {
+        "position": { "x": 0, "y": 0 },
+        "measured": { "width": 150, "height": 136 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "parse_1",
+      "provider": "parse",
+      "config": {},
+      "input": [{ "lane": "tags", "from": "Vision_Node" }],
+      "ui": {
+        "position": { "x": 200, "y": 0 },
+        "measured": { "width": 150, "height": 136 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "vision_look_1",
+      "provider": "accessibility_describe",
+      "config": {
+        "profile": "gemini-2.0-flash",
+        "0-flash": {
+          "apikey": "${ROCKETRIDE_GEMINI_API_KEY}",
+          "prioritizeHazards": "high",
+          "spatialFormat": "relative",
+          "systemPrompt": "You are a welding inspection camera assistant. Describe the weld, joint, and surrounding metal with emphasis on voids, grooves, inclusions, irregular bead profile, and discontinuities relevant to visual weld examination.",
+          "prompt": "Describe the weld in detail: bead profile, craters, visible pores, undercut, slag, spatter, and any linear indications. Use concise technical terms. Max 200 words."
+        }
+      },
+      "input": [{ "lane": "image", "from": "parse_1" }],
+      "ui": {
+        "position": { "x": 400, "y": 0 },
+        "measured": { "width": 150, "height": 120 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "question_1",
+      "provider": "question",
+      "config": { "type": "question" },
+      "input": [{ "lane": "text", "from": "vision_look_1" }],
+      "ui": {
+        "position": { "x": 600, "y": 0 },
+        "measured": { "width": 150, "height": 66 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "prompt_1",
+      "provider": "prompt",
+      "config": {
+        "instructions": [
+          "You are a Certified Welding Inspector (CWI) performing visual examination per AWS D1.1 practice.",
+          "Determine whether the following defect categories are present or absent: porosity, undercut, and slag.",
+          "Return only valid minified JSON with boolean or short evidence for each: porosity, undercut, slag, notes."
+        ]
+      },
+      "input": [{ "lane": "questions", "from": "question_1" }],
+      "ui": {
+        "position": { "x": 800, "y": 0 },
+        "measured": { "width": 150, "height": 120 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "llm_vision_1",
+      "provider": "llm_gemini",
+      "config": {
+        "profile": "gemini-2_0-flash",
+        "gemini-2_0-flash": { "apikey": "${ROCKETRIDE_GEMINI_API_KEY}" }
+      },
+      "input": [{ "lane": "questions", "from": "prompt_1" }],
+      "ui": {
+        "position": { "x": 1020, "y": 0 },
+        "measured": { "width": 150, "height": 66 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    },
+    {
+      "id": "response_1",
+      "provider": "response_answers",
+      "config": { "laneName": "answers" },
+      "input": [{ "lane": "answers", "from": "llm_vision_1" }],
+      "ui": {
+        "position": { "x": 1240, "y": 0 },
+        "measured": { "width": 150, "height": 66 },
+        "nodeType": "default",
+        "formDataValid": true
+      }
+    }
+  ],
+  "viewport": { "x": 0, "y": 0, "zoom": 1 }
+}
