@@ -1,4 +1,4 @@
-## weld inspection RAG chatbot
+## weld Inspection RAG Report Generator
 
 Purpose
 Small Python service and Jupyter demo for visual weld inspection: combine inspector text, reference PDF excerpts, and an LLM, then compare automated weld-image analysis to that regulatory/spec context and emit a structured field inspection narrative (compliance framing, Markdown report).
